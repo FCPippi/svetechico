@@ -75,7 +75,7 @@ export default function Counter() {
     <section className="text-center py-12 md:py-20 relative">
       <div className="animate-fade-in">
         <p className="text-rose-400/60 text-sm tracking-[0.3em] uppercase mb-4">
-          Juntos há
+          Conhecidos há
         </p>
 
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 mb-8">
