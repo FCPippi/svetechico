@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PenLine, X, Plus, Loader2, Heart } from "lucide-react";
+import { PenLine, X, Plus, Loader2, Heart, Trash2 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 interface Letter {
@@ -40,6 +40,7 @@ export default function LetterWall() {
   const [content, setContent] = useState("");
   const [writtenBy, setWrittenBy] = useState("");
   const [color, setColor] = useState(COLORS[0]);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchLetters();
@@ -78,6 +79,18 @@ export default function LetterWall() {
     setWrittenBy("");
     setColor(COLORS[0]);
     setSaving(false);
+    fetchLetters();
+  }
+
+  async function handleDeleteLetter(letter: Letter) {
+    if (!isSupabaseConfigured) return;
+    if (!confirm("Tem certeza que quer deletar essa carta?")) return;
+    setDeleting(true);
+
+    await supabase.from("letters").delete().eq("id", letter.id);
+
+    setDeleting(false);
+    setSelectedLetter(null);
     fetchLetters();
   }
 
@@ -173,10 +186,23 @@ export default function LetterWall() {
               <span className="text-gray-500 text-sm">
                 {formatDate(selectedLetter.created_at)}
               </span>
-              <span className="text-gray-600 font-medium flex items-center gap-1">
-                <Heart size={14} fill="currentColor" className="text-rose-400" />
-                {selectedLetter.written_by}
-              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleDeleteLetter(selectedLetter)}
+                  disabled={deleting}
+                  className="text-red-300 hover:text-red-500 transition-colors"
+                >
+                  {deleting ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={16} />
+                  )}
+                </button>
+                <span className="text-gray-600 font-medium flex items-center gap-1">
+                  <Heart size={14} fill="currentColor" className="text-rose-400" />
+                  {selectedLetter.written_by}
+                </span>
+              </div>
             </div>
           </div>
         </div>

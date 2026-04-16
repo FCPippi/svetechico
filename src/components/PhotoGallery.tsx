@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Camera, X, Plus, Loader2 } from "lucide-react";
+import { Camera, X, Plus, Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -33,6 +33,7 @@ export default function PhotoGallery() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchPhotos();
@@ -101,6 +102,23 @@ export default function PhotoGallery() {
     fetchPhotos();
   }
 
+  async function handleDeletePhoto(photo: Photo) {
+    if (photo.isLocal || !isSupabaseConfigured) return;
+    if (!confirm("Tem certeza que quer deletar essa foto?")) return;
+    setDeleting(true);
+
+    // Extract filename from URL
+    const urlParts = photo.url.split("/");
+    const fileName = urlParts[urlParts.length - 1];
+
+    await supabase.storage.from("photos").remove([fileName]);
+    await supabase.from("photos").delete().eq("id", photo.id);
+
+    setDeleting(false);
+    setSelectedPhoto(null);
+    fetchPhotos();
+  }
+
   return (
     <section id="fotos" className="py-12 md:py-16">
       <div className="flex items-center justify-between mb-8">
@@ -159,12 +177,27 @@ export default function PhotoGallery() {
             className="relative max-w-3xl max-h-[85vh] w-full animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setSelectedPhoto(null)}
-              className="absolute -top-3 -right-3 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-rose-50 transition-colors"
-            >
-              <X size={20} className="text-rose-500" />
-            </button>
+            <div className="absolute -top-3 -right-3 z-10 flex gap-2">
+              {!selectedPhoto.isLocal && (
+                <button
+                  onClick={() => handleDeletePhoto(selectedPhoto)}
+                  disabled={deleting}
+                  className="bg-white rounded-full p-2 shadow-lg hover:bg-red-50 transition-colors"
+                >
+                  {deleting ? (
+                    <Loader2 size={20} className="text-red-400 animate-spin" />
+                  ) : (
+                    <Trash2 size={20} className="text-red-400" />
+                  )}
+                </button>
+              )}
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                className="bg-white rounded-full p-2 shadow-lg hover:bg-rose-50 transition-colors"
+              >
+                <X size={20} className="text-rose-500" />
+              </button>
+            </div>
             <div className="relative w-full h-[70vh] rounded-2xl overflow-hidden bg-white shadow-2xl">
               <Image
                 src={selectedPhoto.url}
