@@ -1,12 +1,13 @@
 import Counter from "@/components/Counter";
 import PhotoGallery from "@/components/PhotoGallery";
 import LetterWall from "@/components/LetterWall";
+import PasswordGate from "@/components/PasswordGate";
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
-    <>
+    <PasswordGate>
       {/* Corações flutuantes de fundo */}
       <div className="floating-hearts" aria-hidden="true">
         {Array.from({ length: 12 }).map((_, i) => (
@@ -64,6 +65,6 @@ export default function Home() {
           <p>feito com ❤️ pra nós dois</p>
         </footer>
       </main>
-    </>
+    </PasswordGate>
   );
 }

@@ -109,3 +109,16 @@ h1, h2, h3 {
   transform: scale(1.02);
   box-shadow: 0 12px 40px rgba(244, 114, 182, 0.2);
 }
+
+/* Shake animation */
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
